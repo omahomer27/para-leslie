@@ -28,7 +28,8 @@
     html, body { margin: 0; min-height: 100%; }
 
     body {
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       color: var(--white);
       font-family: 'VT323', monospace;
       background:
@@ -500,10 +501,12 @@
       .dialog-text { font-size: 29px; min-height: 220px; }
       .tiny-copy { text-align: left; }
       .screen { min-height: auto; }
+      .wrap { display: block; padding: 10px; }
+      .cabinet { margin: 0 auto; }
     }
 
     @media (max-width: 600px) {
-      .wrap { padding: 8px; }
+      .wrap { display: block; padding: 8px; }
       .marquee { font-size: 8px; padding: 10px 10px; gap: 8px; }
       .screen { padding: 12px; }
       .chip { font-size: 8px; padding: 8px 10px; }
@@ -523,6 +526,7 @@
 
     @media (max-width: 420px) {
       .dialog-text { font-size: 22px; }
+      .screen { padding-bottom: 18px; }
       .overlay-text, .final-text { font-size: 21px; }
       .pixel-heart { font-size: 56px; }
       .choice-btn { min-width: 104px; }
@@ -661,7 +665,7 @@
             </div>
             <div class="final-note">
               Me hace mucha ilusión compartir ese momento contigo. <br>
-              Con mucho cariño, Gabriel 💖
+              Con mucho cariño, Gabo "El Churrumais" Gonzalez 💖
             </div>
             <div class="mobile-tip">Puedes reiniciar para volver a leer todo desde el principio.</div>
           </div>
