@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Leslie - Special Edition</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+    :root {
+      --bg-a: #12051e;
+      --bg-b: #22113b;
+      --bg-c: #09040f;
+      --panel: rgba(20, 12, 31, 0.94);
+      --pink: #ff4fa3;
+      --pink-2: #ff8cc7;
+      --cyan: #5ee8ff;
+      --cyan-2: #8cf2ff;
+      --purple: #a86dff;
+      --yellow: #ffe27c;
+      --white: #fff7fb;
+      --line: rgba(255,255,255,0.08);
+      --shadow-main: 0 0 0 4px #000, 0 0 0 8px rgba(255,255,255,0.05), 0 0 40px rgba(255,79,163,0.24);
+      --shadow-soft: 0 0 24px rgba(94,232,255,0.18);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; }
+
+    body {
+      overflow: hidden;
+      color: var(--white);
+      font-family: 'VT323', monospace;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255,79,163,0.14), transparent 22%),
+        radial-gradient(circle at 85% 20%, rgba(94,232,255,0.12), transparent 20%),
+        radial-gradient(circle at 50% 90%, rgba(168,109,255,0.10), transparent 26%),
+        linear-gradient(180deg, var(--bg-b), var(--bg-a) 58%, var(--bg-c));
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.05) 0px,
+        rgba(255,255,255,0.05) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+      opacity: 0.07;
+      mix-blend-mode: soft-light;
+    }
+
+    .particles, .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .particle, .heart {
+      position: absolute;
+      user-select: none;
+      animation: floatUp linear infinite;
+      opacity: 0.85;
+    }
+
+    .particle { color: var(--cyan); }
+    .heart { color: var(--pink-2); }
+
+    @keyframes floatUp {
+      from { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+      10% { opacity: .8; }
+      90% { opacity: .82; }
+      to { transform: translateY(-115vh) translateX(24px) rotate(8deg); opacity: 0; }
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 14px;
+    }
+
+    .cabinet {
+      width: min(960px, 100%);
+      border: 4px solid #000;
+      border-radius: 22px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(34,14,53,0.98), rgba(11,7,18,0.98));
+      box-shadow: var(--shadow-main);
+      position: relative;
+    }
+
+    .marquee {
+      padding: 14px 16px;
+      border-bottom: 4px solid #000;
+      background:
+        linear-gradient(90deg, rgba(255,79,163,0.22), rgba(94,232,255,0.14), rgba(168,109,255,0.18));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: space-between;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 11px;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .marquee .left { color: var(--yellow); }
+    .marquee .center { color: var(--pink-2); text-align: center; flex: 1; }
+    .marquee .right { color: var(--cyan-2); }
+
+    .screen {
+      position: relative;
+      min-height: 650px;
+      padding: 18px;
+      background:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+        radial-gradient(circle at center top, rgba(255,255,255,0.06), transparent 32%),
+        linear-gradient(180deg, #221139, #12091d 60%, #08050d);
+      background-size: 22px 22px, 22px 22px, auto, auto;
+    }
+
+    .status-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      border: 3px solid #000;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      padding: 10px 12px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 9px;
+      text-shadow: 2px 2px 0 #000;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.04);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .panel {
+      border: 4px solid #000;
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: inset 0 0 0 2px var(--line), var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .avatar-panel {
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 22px 14px;
+    }
+
+    .avatar-panel::before,
+    .avatar-panel::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      width: 130px;
+      height: 130px;
+      background: radial-gradient(circle, rgba(255,79,163,0.18), transparent 68%);
+      pointer-events: none;
+    }
+
+    .avatar-panel::before { top: -24px; left: -24px; }
+    .avatar-panel::after { bottom: -26px; right: -20px; background: radial-gradient(circle, rgba(94,232,255,0.16), transparent 68%); }
+
+    .spark {
+      position: absolute;
+      font-size: 16px;
+      opacity: .86;
+      animation: blink 1.6s infinite alternate;
+    }
+    .spark.s1 { top: 16px; left: 18px; }
+    .spark.s2 { top: 28px; right: 20px; animation-delay: .3s; }
+    .spark.s3 { bottom: 18px; left: 24px; animation-delay: .7s; }
+    .spark.s4 { bottom: 26px; right: 22px; animation-delay: 1s; }
+
+    @keyframes blink {
+      from { transform: scale(.92); opacity: .35; }
+      to { transform: scale(1.18); opacity: .95; }
+    }
+
+    .avatar {
+      width: 154px;
+      height: 154px;
+      position: relative;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 10px 0 rgba(0,0,0,.22));
+      animation: bob 1.6s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .px {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+    }
+
+    .title-mini {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 12px;
+      line-height: 1.7;
+      text-align: center;
+      color: var(--pink-2);
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .subtitle-mini {
+      text-align: center;
+      font-size: 22px;
+      line-height: 1.15;
+      color: #f8ddec;
+      max-width: 220px;
+    }
+
+    .dialog-panel {
+      min-height: 430px;
+      padding: 20px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .dialog-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 10px;
+      color: var(--cyan-2);
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .sound-note {
+      color: var(--yellow);
+      font-size: 9px;
+    }
+
+    .dialog-text {
+      flex: 1;
+      min-height: 260px;
+      font-size: 33px;
+      line-height: 1.17;
+      color: var(--white);
+      white-space: pre-wrap;
+      text-shadow: 2px 2px 0 rgba(0,0,0,.46);
+      padding-right: 4px;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 14px;
+      color: var(--pink-2);
+      animation: cursorBlink .9s steps(1) infinite;
+    }
+
+    @keyframes cursorBlink { 50% { opacity: 0; } }
+
+    .hint {
+      color: #ecd8f7;
+      font-size: 21px;
+      min-height: 28px;
+    }
+
+    .controls-panel {
+      margin-top: 14px;
+      border: 4px solid #000;
+      border-radius: 18px;
+      background: rgba(19, 12, 31, 0.95);
+      box-shadow: inset 0 0 0 2px var(--line);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .controls-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      appearance: none;
+      border: 4px solid #000;
+      border-radius: 14px;
+      padding: 13px 14px;
+      cursor: pointer;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 10px;
+      transition: transform .08s ease, filter .14s ease, left .12s ease, top .12s ease;
+      text-transform: uppercase;
+      touch-action: manipulation;
+      min-height: 48px;
+    }
+
+    button:hover, button:focus-visible { filter: brightness(1.08); outline: none; }
+    button:active { transform: translateY(2px); }
+
+    .btn-start {
+      background: linear-gradient(180deg, #ff8fca, #ff4fa3);
+      color: #fff;
+      text-shadow: 2px 2px 0 #8f235d;
+    }
+
+    .btn-next {
+      background: linear-gradient(180deg, #8eedff, #5ed9ff);
+      color: #0b2740;
+      text-shadow: 1px 1px 0 rgba(255,255,255,.35);
+    }
+
+    .btn-reset {
+      background: linear-gradient(180deg, #ffeaa8, #ffd86d);
+      color: #5f4300;
+      text-shadow: 1px 1px 0 rgba(255,255,255,.35);
+    }
+
+    .tiny-copy {
+      color: #f0dcfa;
+      font-size: 20px;
+      text-align: right;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .overlay, .final-screen {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(8,5,14,.58), rgba(10,7,18,.88));
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+
+    .overlay.hidden,
+    .final-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .overlay-card, .final-card {
+      width: min(720px, 100%);
+      border: 4px solid #000;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(43,19,66,.98), rgba(14,9,23,.98));
+      box-shadow: var(--shadow-main);
+      padding: 26px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .overlay-card::before, .final-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, transparent 0 20%, rgba(255,255,255,.05) 32%, transparent 42% 100%);
+    }
+
+    .pixel-heart {
+      font-size: 68px;
+      display: inline-block;
+      animation: pulse 1.15s infinite;
+      filter: drop-shadow(0 0 18px rgba(255,79,163,.34));
+    }
+
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    .overlay-title, .final-title {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 16px;
+      line-height: 1.6;
+      text-shadow: 2px 2px 0 #000;
+      margin: 14px 0 18px;
+    }
+
+    .overlay-title { color: var(--yellow); }
+    .final-title { color: var(--mint, #a6ffd8); }
+
+    .overlay-text, .final-text {
+      font-size: 30px;
+      line-height: 1.2;
+      color: #fff7fd;
+      margin: 0 0 18px;
+    }
+
+    .choice-zone {
+      position: relative;
+      min-height: 170px;
+      margin-top: 18px;
+      border: 4px dashed rgba(255,255,255,.12);
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      overflow: hidden;
+    }
+
+    .choice-zone .prompt {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--pink-2);
+      text-shadow: 2px 2px 0 #000;
+      padding: 14px 12px 0;
+      text-align: center;
+    }
+
+    .choice-zone .sub {
+      color: #efdaf8;
+      text-align: center;
+      font-size: 22px;
+      padding: 8px 18px 0;
+    }
+
+    .choice-buttons {
+      position: relative;
+      height: 96px;
+      margin-top: 8px;
+    }
+
+    .choice-btn {
+      position: absolute;
+      min-width: 120px;
+      z-index: 2;
+    }
+
+    #yesBtn {
+      left: calc(50% - 135px);
+      top: 20px;
+      background: linear-gradient(180deg, #ff8fca, #ff4fa3);
+      color: #fff;
+      text-shadow: 2px 2px 0 #8f235d;
+    }
+
+    #noBtn {
+      left: calc(50% + 15px);
+      top: 20px;
+      background: linear-gradient(180deg, #8eedff, #5ed9ff);
+      color: #0b2740;
+      text-shadow: 1px 1px 0 rgba(255,255,255,.35);
+    }
+
+    .final-note {
+      color: #f0dcfa;
+      font-size: 21px;
+      margin-top: 10px;
+    }
+
+    .mobile-tip {
+      font-size: 18px;
+      color: #e8d2f4;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .avatar-panel { min-height: 280px; }
+      .dialog-panel { min-height: 360px; }
+      .dialog-text { font-size: 29px; min-height: 220px; }
+      .tiny-copy { text-align: left; }
+      .screen { min-height: auto; }
+    }
+
+    @media (max-width: 600px) {
+      .wrap { padding: 8px; }
+      .marquee { font-size: 8px; padding: 10px 10px; gap: 8px; }
+      .screen { padding: 12px; }
+      .chip { font-size: 8px; padding: 8px 10px; }
+      .dialog-head { font-size: 8px; }
+      .dialog-text { font-size: 24px; line-height: 1.16; min-height: 210px; }
+      .hint { font-size: 19px; }
+      .overlay-text, .final-text { font-size: 23px; }
+      .overlay-title, .final-title { font-size: 12px; }
+      .subtitle-mini { font-size: 20px; }
+      button { font-size: 9px; min-height: 46px; padding: 12px; }
+      .choice-zone { min-height: 196px; }
+      .choice-buttons { height: 112px; }
+      #yesBtn { left: calc(50% - 120px); }
+      #noBtn { left: calc(50% + 4px); }
+      .mobile-tip { font-size: 17px; }
+    }
+
+    @media (max-width: 420px) {
+      .dialog-text { font-size: 22px; }
+      .overlay-text, .final-text { font-size: 21px; }
+      .pixel-heart { font-size: 56px; }
+      .choice-btn { min-width: 104px; }
+      #yesBtn { left: calc(50% - 110px); top: 28px; }
+      #noBtn { left: calc(50% + 4px); top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  <div class="hearts" id="hearts"></div>
+
+  <div class="wrap">
+    <div class="cabinet">
+      <div class="marquee">
+        <div class="left">LIFE ♥ ♥ ♥</div>
+        <div class="center">LEVEL 1: LESLIE SPECIAL EDITION</div>
+        <div class="right">SCORE: 280326</div>
+      </div>
+
+      <div class="screen">
+        <div class="status-row">
+          <div class="chip">PLAYER: GABRIEL</div>
+          <div class="chip">MODE: ARCADE TIERNO</div>
+          <div class="chip">MISSION: DECIR ALGO IMPORTANTE</div>
+        </div>
+
+        <div class="layout">
+          <div class="panel avatar-panel">
+            <div class="spark s1">✦</div>
+            <div class="spark s2">✧</div>
+            <div class="spark s3">✦</div>
+            <div class="spark s4">✧</div>
+
+            <div class="avatar" aria-label="corazón pixelado">
+              <div class="px" style="left:36px;top:18px;background:#ff73bb"></div>
+              <div class="px" style="left:54px;top:18px;background:#ff73bb"></div>
+              <div class="px" style="left:90px;top:18px;background:#ff73bb"></div>
+              <div class="px" style="left:108px;top:18px;background:#ff73bb"></div>
+
+              <div class="px" style="left:18px;top:36px;background:#ff73bb"></div>
+              <div class="px" style="left:36px;top:36px;background:#ff9dd0"></div>
+              <div class="px" style="left:54px;top:36px;background:#ff9dd0"></div>
+              <div class="px" style="left:72px;top:36px;background:#ff73bb"></div>
+              <div class="px" style="left:90px;top:36px;background:#ff9dd0"></div>
+              <div class="px" style="left:108px;top:36px;background:#ff9dd0"></div>
+              <div class="px" style="left:126px;top:36px;background:#ff73bb"></div>
+
+              <div class="px" style="left:18px;top:54px;background:#ff73bb"></div>
+              <div class="px" style="left:36px;top:54px;background:#ff9dd0"></div>
+              <div class="px" style="left:54px;top:54px;background:#ff9dd0"></div>
+              <div class="px" style="left:72px;top:54px;background:#ffd8eb"></div>
+              <div class="px" style="left:90px;top:54px;background:#ff9dd0"></div>
+              <div class="px" style="left:108px;top:54px;background:#ff9dd0"></div>
+              <div class="px" style="left:126px;top:54px;background:#ff73bb"></div>
+
+              <div class="px" style="left:36px;top:72px;background:#ff9dd0"></div>
+              <div class="px" style="left:54px;top:72px;background:#ff9dd0"></div>
+              <div class="px" style="left:72px;top:72px;background:#ffd8eb"></div>
+              <div class="px" style="left:90px;top:72px;background:#ff9dd0"></div>
+              <div class="px" style="left:108px;top:72px;background:#ff9dd0"></div>
+
+              <div class="px" style="left:54px;top:90px;background:#ff73bb"></div>
+              <div class="px" style="left:72px;top:90px;background:#ff9dd0"></div>
+              <div class="px" style="left:90px;top:90px;background:#ff73bb"></div>
+
+              <div class="px" style="left:72px;top:108px;background:#ff73bb"></div>
+            </div>
+
+            <div class="title-mini">BONUS LEVEL<br>FOR LESLIE</div>
+            <div class="subtitle-mini">Una cartita pixelada con neón, ternura y una sonrisa escondida.</div>
+          </div>
+
+          <div>
+            <div class="panel dialog-panel">
+              <div class="dialog-head">
+                <div>PRESS START TO CONTINUE</div>
+                <div class="sound-note">best played with a little smile</div>
+              </div>
+              <div class="dialog-text" id="dialog"></div>
+              <div class="hint" id="hint">Presiona “Siguiente” para avanzar.</div>
+            </div>
+
+            <div class="controls-panel">
+              <div class="controls-top">
+                <div class="btn-row">
+                  <button class="btn-start" id="startBtn">Start</button>
+                  <button class="btn-next" id="nextBtn">Siguiente</button>
+                  <button class="btn-reset" id="restartBtn">Reiniciar</button>
+                </div>
+                <div class="tiny-copy">Hecho con cariño, píxeles y un poquito de descaro bonito.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="overlay" id="introOverlay">
+          <div class="overlay-card">
+            <div class="pixel-heart">♥</div>
+            <div class="overlay-title">INSERT COIN: UNA SONRISA</div>
+            <div class="overlay-text">
+              Leslie, hice esto porque lo que quería decirte no cabía en un mensaje cualquiera.
+              Quería que se sintiera un poco como un pequeño videojuego bonito.
+            </div>
+            <button class="btn-start" id="playBtn">Jugar</button>
+            <div class="mobile-tip">En celular también funciona. Solo toca la pantalla y avanza ✨</div>
+          </div>
+        </div>
+
+        <div class="final-screen hidden" id="finalScreen">
+          <div class="final-card">
+            <div class="pixel-heart">♥</div>
+            <div class="final-title">FINAL STAGE: LA INVITACIÓN</div>
+            <div class="final-text">
+              Entonces... ¿aceptas esta invitación para una noche muy especial el <strong>28 de marzo de 2026</strong>?
+            </div>
+            <div class="choice-zone" id="choiceZone">
+              <div class="prompt">SELECT YOUR ANSWER</div>
+              <div class="sub">Dicen que aquí hay libre albedrío, pero el botón azul tiene otros planes 😌</div>
+              <div class="choice-buttons">
+                <button class="choice-btn" id="yesBtn">Sí 💖</button>
+                <button class="choice-btn" id="noBtn">No 🙈</button>
+              </div>
+            </div>
+            <div class="final-note" id="finalNote">Toca una opción para continuar.</div>
+          </div>
+        </div>
+
+        <div class="final-screen hidden" id="acceptedScreen">
+          <div class="final-card">
+            <div class="pixel-heart">♥</div>
+            <div class="final-title">QUEST ACCEPTED ✨</div>
+            <div class="final-text">
+              Sabía que esta aventura tenía buena pinta.
+              Entonces prepárate para una noche muy especial el <strong>28 de marzo de 2026</strong>.
+            </div>
+            <div class="final-note">
+              Me hace mucha ilusión compartir ese momento contigo. <br>
+              Con mucho cariño, Gabriel 💖
+            </div>
+            <div class="mobile-tip">Puedes reiniciar para volver a leer todo desde el principio.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dialog = document.getElementById('dialog');
+    const introOverlay = document.getElementById('introOverlay');
+    const finalScreen = document.getElementById('finalScreen');
+    const acceptedScreen = document.getElementById('acceptedScreen');
+    const startBtn = document.getElementById('startBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const playBtn = document.getElementById('playBtn');
+    const hint = document.getElementById('hint');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const choiceZone = document.getElementById('choiceZone');
+    const finalNote = document.getElementById('finalNote');
+
+    const scenes = [
+      'Hola, Leslie.\n\nTe hice esto porque contigo no quería decir las cosas de una forma cualquiera. Quería que este momento tuviera un poco de luz, un poco de juego... y mucho de lo que siento por ti.',
+      'Compartir tiempo contigo ha sido algo muy bonito para mí. Me gusta tu forma de ser, tu calidez, tu esencia, y esa manera tan tuya de hacer que ciertos momentos se queden brillando un rato más de lo normal.',
+      'Hay algo que siento desde hace tiempo, y creo que en el fondo los dos hemos querido decirnos algo parecido. Algo que se ha quedado flotando entre miradas, momentos y silencios bonitos.',
+      'Por eso quise preparar algo especial. No algo enorme, sino algo hecho con cariño, porque hay personas que hacen que valga la pena cuidar los detalles. Y tú eres una de ellas.',
+      'Así que quería invitarte a una cita muy especial el próximo 28 de marzo de 2026. Me hace mucha ilusión pensar en esa noche, en verte, en compartirla contigo y en dejar que ese momento diga por sí solo lo bonito que se siente esto.',
+      'Si llegaste hasta aquí, ya sabes que este pequeño juego solo era una forma de acercarme a ti con ternura, con intención... y con unas ganas enormes de vivir algo bonito contigo.\n\nPresiona Start para ir a la última pantalla.'
+    ];
+
+    let currentScene = -1;
+    let typing = false;
+    let typingTimer = null;
+    let displayedFullText = '';
+    let noMoveCount = 0;
+
+    function makeParticles(containerId, symbol, count, minSize, maxSize, minDur, maxDur) {
+      const container = document.getElementById(containerId);
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = symbol === '♥' ? 'heart' : 'particle';
+        el.textContent = symbol;
+        const size = Math.random() * (maxSize - minSize) + minSize;
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.bottom = (-10 - Math.random() * 100) + 'px';
+        el.style.fontSize = size + 'px';
+        el.style.animationDuration = (Math.random() * (maxDur - minDur) + minDur) + 's';
+        el.style.animationDelay = (Math.random() * 10) + 's';
+        container.appendChild(el);
+      }
+    }
+
+    makeParticles('particles', '✦', 28, 10, 18, 11, 22);
+    makeParticles('hearts', '♥', 16, 12, 18, 12, 21);
+
+    function typeScene(text) {
+      clearTimeout(typingTimer);
+      typing = true;
+      displayedFullText = text;
+      dialog.innerHTML = '';
+      let i = 0;
+
+      function step() {
+        const shown = text.slice(0, i).replace(/\n/g, '<br>');
+        dialog.innerHTML = shown + '<span class="cursor">█</span>';
+        i++;
+        if (i <= text.length) {
+          typingTimer = setTimeout(step, 22);
+        } else {
+          typing = false;
+          dialog.innerHTML = shown;
+          if (currentScene === scenes.length - 1) {
+            hint.textContent = 'Presiona “Start” para ir a la invitación final.';
+            startBtn.textContent = 'Final';
+          } else {
+            hint.textContent = 'Presiona “Siguiente” para avanzar.';
+            startBtn.textContent = 'Start';
+          }
+        }
+      }
+      step();
+    }
+
+    function showScene(index) {
+      if (index < 0 || index >= scenes.length) return;
+      currentScene = index;
+      typeScene(scenes[index]);
+    }
+
+    function nextScene() {
+      if (typing) {
+        clearTimeout(typingTimer);
+        typing = false;
+        dialog.innerHTML = displayedFullText.replace(/\n/g, '<br>');
+        if (currentScene === scenes.length - 1) {
+          hint.textContent = 'Presiona “Start” para ir a la invitación final.';
+          startBtn.textContent = 'Final';
+        }
+        return;
+      }
+      if (currentScene < scenes.length - 1) {
+        showScene(currentScene + 1);
+      }
+    }
+
+    function openStory() {
+      introOverlay.classList.add('hidden');
+      finalScreen.classList.add('hidden');
+      acceptedScreen.classList.add('hidden');
+      showScene(0);
+    }
+
+    function openFinalChoice() {
+      finalScreen.classList.remove('hidden');
+      acceptedScreen.classList.add('hidden');
+      hint.textContent = 'La pantalla final ya está lista 💖';
+    }
+
+    function acceptInvitation() {
+      finalScreen.classList.add('hidden');
+      acceptedScreen.classList.remove('hidden');
+    }
+
+    function resetNoButton() {
+      noBtn.style.left = window.innerWidth <= 420 ? 'calc(50% + 4px)' : (window.innerWidth <= 600 ? 'calc(50% + 4px)' : 'calc(50% + 15px)');
+      noBtn.style.top = window.innerWidth <= 420 ? '28px' : '20px';
+      noMoveCount = 0;
+      finalNote.textContent = 'Toca una opción para continuar.';
+    }
+
+    function moveNoButton() {
+      const zoneRect = choiceZone.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const btnW = btnRect.width;
+      const btnH = btnRect.height;
+
+      const minX = 10;
+      const maxX = Math.max(10, zoneRect.width - btnW - 10);
+      const minY = 54;
+      const maxY = Math.max(54, zoneRect.height - btnH - 10);
+
+      const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+      const randomY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+
+      noBtn.style.left = randomX + 'px';
+      noBtn.style.top = randomY + 'px';
+
+      noMoveCount++;
+      const jokes = [
+        'Buen intento 😌',
+        'Ese botón es tímido.',
+        'No quiere colaborar mucho.',
+        'Curioso... el “No” anda escapando.',
+        'Tal vez el universo ya eligió por ti 💖'
+      ];
+      finalNote.textContent = jokes[Math.min(noMoveCount - 1, jokes.length - 1)];
+    }
+
+    function bindNoEscape() {
+      const triggerMove = (e) => {
+        e.preventDefault();
+        moveNoButton();
+      };
+
+      ['mouseenter', 'touchstart', 'pointerdown', 'click'].forEach(evt => {
+        noBtn.addEventListener(evt, triggerMove, { passive: false });
+      });
+    }
+
+    function resetGame() {
+      clearTimeout(typingTimer);
+      typing = false;
+      currentScene = -1;
+      dialog.innerHTML = '';
+      hint.textContent = 'Presiona “Siguiente” para avanzar.';
+      startBtn.textContent = 'Start';
+      introOverlay.classList.remove('hidden');
+      finalScreen.classList.add('hidden');
+      acceptedScreen.classList.add('hidden');
+      resetNoButton();
+    }
+
+    playBtn.addEventListener('click', openStory);
+
+    startBtn.addEventListener('click', () => {
+      if (currentScene === -1) {
+        openStory();
+        return;
+      }
+      if (typing) {
+        nextScene();
+        return;
+      }
+      if (currentScene === scenes.length - 1) {
+        openFinalChoice();
+      } else {
+        nextScene();
+      }
+    });
+
+    nextBtn.addEventListener('click', nextScene);
+    restartBtn.addEventListener('click', resetGame);
+    yesBtn.addEventListener('click', acceptInvitation);
+
+    bindNoEscape();
+
+    window.addEventListener('resize', resetNoButton);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (!introOverlay.classList.contains('hidden')) {
+          openStory();
+          return;
+        }
+        if (!finalScreen.classList.contains('hidden')) {
+          acceptInvitation();
+          return;
+        }
+        if (currentScene === scenes.length - 1 && !typing) {
+          openFinalChoice();
+          return;
+        }
+        nextScene();
+      }
+      if (e.key.toLowerCase() === 'r') {
+        resetGame();
+      }
+    });
+
+    resetNoButton();
+  </script>
+</body>
+</html>
